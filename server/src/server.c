@@ -34,12 +34,12 @@ static int accept_conn(int listener_socket) {
 }
 
 void server_event_loop(int listener_fd) {
-  fd_set tmp_sockets, ready_sockets;
-  FD_ZERO(&tmp_sockets);
-  FD_SET(listener_fd, &tmp_sockets);
+  fd_set cur_sockets, ready_sockets;
+  FD_ZERO(&cur_sockets);
+  FD_SET(listener_fd, &cur_sockets);
 
   for (;;) {
-    ready_sockets = tmp_sockets;
+    ready_sockets = cur_sockets;
     // select modifies the fdsets in place
     if (select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) < 0) {
       perror("multiplexing failed");
@@ -51,10 +51,13 @@ void server_event_loop(int listener_fd) {
         if (listener_fd) {
           // client trying to connect
           int peer_fd = accept_conn(listener_fd);
-          if(peer_fd < 0) continue;
-          FD_SET(peer_fd, &tmp_sockets);
-        } else {  
+          if (peer_fd < 0)
+            continue;
+
+          FD_SET(peer_fd, &cur_sockets);
+        } else {
           handle_client(i);
+          FD_CLR(i, &cur_sockets);
         }
       }
     }

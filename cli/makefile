@@ -1,12 +1,12 @@
 .PHONY: all default debug run clean
 
 CC := gcc
-OUTPUT_DIR := build
-EXEC := $(OUTPUT_DIR)/ownredis-server
+OUTPUT_DIR := bin
+EXEC := $(OUTPUT_DIR)/ownredis-cli
 ARGS = 
 
-EXEC_DEBUG := $(OUTPUT_DIR)/ownredis-server-debug
-CFLAGS := -Wall -Wextra -std=c99 -Iinclude -fsanitize=address
+EXEC_DEBUG := $(OUTPUT_DIR)/ownredis-cli-debug
+CFLAGS := -Wall -Wextra -std=c99 -Iinclude
 SRCS := $(shell find src -name "*.c")
 OBJS := $(patsubst src/%.c, $(OUTPUT_DIR)/%.o, $(SRCS))
 
@@ -29,4 +29,4 @@ $(OUTPUT_DIR)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean: 
-	rm -rf $(OUTPUT_DIR)
+	rm -rf bin
