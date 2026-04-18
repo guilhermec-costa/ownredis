@@ -6,7 +6,7 @@ EXEC := $(OUTPUT_DIR)/ownredis-server
 ARGS = 
 
 EXEC_DEBUG := $(OUTPUT_DIR)/ownredis-server-debug
-CFLAGS := -Wall -Wextra -std=c99 -Iinclude -fsanitize=address
+CFLAGS := -Wall -Wextra -std=c99 -Iinclude
 SRCS := $(shell find src -name "*.c")
 OBJS := $(patsubst src/%.c, $(OUTPUT_DIR)/%.o, $(SRCS))
 
@@ -27,6 +27,9 @@ $(EXEC): $(OBJS)
 $(OUTPUT_DIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+compile_cmds:
+	bear -- make
 
 clean: 
 	rm -rf $(OUTPUT_DIR)
