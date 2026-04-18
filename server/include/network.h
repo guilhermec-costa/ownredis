@@ -4,9 +4,13 @@
 
 #define SOCKERR -1
 
-void start_server(server_args *args, short port);
+void start_server(server_args* args, short port);
 
-typedef enum { KEEP_ALIVE, CLOSE_FD } client_handle_otp;
+typedef enum
+{
+    KEEP_ALIVE,
+    CLOSE_FD
+} client_handle_otp;
 
 client_handle_otp handle_client(int peer_fd);
 
