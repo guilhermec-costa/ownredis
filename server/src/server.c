@@ -25,33 +25,33 @@ void sel_event_loop(int listener_fd)
     {
         readfds = resetfds;
         // select modifies the fdsets in place
-        if (select(max_fd, &readfds, NULL, NULL, NULL) < 0)
+        if (select(max_fd + 1, &readfds, NULL, NULL, NULL) < 0)
         {
             perror("multiplexing failed");
             exit(EXIT_FAILURE);
         }
 
-        for (int i = 0; i < max_fd; i++)
+        for (int i = 0; i < max_fd + 1; i++)
         {
             if (FD_ISSET(i, &readfds))
             {
                 if (i == listener_fd)
                 {
-                    printf("Client trying to connect...\n");
+                    LOG_D("Client trying to connect...\n");
                     int peer_fd = accept_conn(listener_fd);
                     if (peer_fd == SOCKERR)
                         continue;
 
                     if (peer_fd > FD_SETSIZE)
                     {
-                        fprintf(stderr, "Can not accept more connections. Limit: %d", FD_SETSIZE);
+                        LOG_E("Can not accept more connections. Limit: %d", FD_SETSIZE);
                         close(peer_fd);
                         continue;
                     }
 
                     FD_SET(peer_fd, &resetfds);
-                    if (peer_fd > max_fd)
-                        max_fd = peer_fd;
+                    max_fd = peer_fd;
+                    // if (peer_fd > max_fd)
                 }
                 else
                 {
@@ -70,7 +70,7 @@ void sel_event_loop(int listener_fd)
     }
 }
 
-void start_server(server_args* args, short port)
+void start_server(server _server)
 {
     int sock_listener;
     exit_on_error((sock_listener = socket(AF_INET, SOCK_STREAM, 0)), "error on initializing server",
@@ -81,7 +81,8 @@ void start_server(server_args* args, short port)
         setsockopt(sock_listener, SOL_SOCKET, SO_REUSEADDR, &_opt_reuse, sizeof(_opt_reuse)),
         "setsockopt failed", SOCKERR);
 
-    SA_IN _addr = {.sin_family = AF_INET, .sin_port = htons(port), .sin_addr = {htonl(INADDR_ANY)}};
+    SA_IN _addr = {
+        .sin_family = AF_INET, .sin_port = htons(_server.port), .sin_addr = {htonl(INADDR_ANY)}};
 
     exit_on_error(bind(sock_listener, (struct sockaddr*)&_addr, sizeof(_addr)),
                   "bind socket failed", SOCKERR);
@@ -89,10 +90,10 @@ void start_server(server_args* args, short port)
     int conn_backlog = 5;
     exit_on_error(listen(sock_listener, conn_backlog), "sock listen failed", SOCKERR);
 
-    logger.info("Server listening on port %d. Waiting for connections...\n", port);
+    LOG_D("Server listening on port %d. Waiting for connections...\n", _server.port);
 
-    sel_event_loop(sock_listener);
+    _server.loop(sock_listener);
 
-    logger.info("Ending server...\n");
+    LOG_D("Ending server...\n");
     close(sock_listener);
 }

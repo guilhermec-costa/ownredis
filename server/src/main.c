@@ -5,8 +5,6 @@
 #include "network.h"
 #include "types.h"
 
-#define PORT 8000
-
 int main(int argc, char** argv)
 {
     setbuf(stdout, NULL);
@@ -14,9 +12,15 @@ int main(int argc, char** argv)
 
     set_global_log_lvl(LOG_DEBUG);
 
-    LOG_D("Server starting at %s\n", "churros");
-    server_args args = {argc, ++argv};
-    start_server(&args, PORT);
+    LOG_D("Server starting...\n");
+
+    server _server = {
+        .args = {argc, ++argv},
+        .port = 8000,
+        .loop = sel_event_loop,
+    };
+
+    start_server(_server);
 
     return EXIT_SUCCESS;
 }
