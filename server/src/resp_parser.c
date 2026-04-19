@@ -1,19 +1,11 @@
-#include "logger.h"
 #define _POSIX_C_SOURCE 200809L
 #include "resp_parser.h"
 #include <stdlib.h>
 #include <string.h>
 
-void resp_free_tokens(char** tokens)
-{
-    for (int i = 0; tokens[i] != NULL; i++)
-    {
-        free(tokens[i]);
-    }
-    free(tokens);
-}
+void resp_free_tokens(char** tokens) { free(tokens); }
 
-char** resp_get_tokens(char* raw_resp)
+resp_tokens_t resp_get_tokens(char* raw_resp)
 {
     char* saveptr;
     char* token = strtok_r(raw_resp, RESP_TRMTOR, &saveptr);
@@ -60,3 +52,17 @@ void escape_resp(char* out, const char* in)
     out[j] = '\0';
 }
 #endif
+
+resp_type_t resp_get_type(resp_tokens_t tokens)
+{
+    switch (tokens[0][0])
+    {
+    case '+':
+        return RESP_SIMPLE_STR;
+    case '*':
+        return RESP_ARRAY;
+    case '$':
+        return RESP_BULK_STR;
+    }
+    return RESP_ARRAY;
+}

@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
-    set_global_log_lvl(LOG_DEBUG);
+    set_g_log_lvl(LOG_DEBUG);
 
     LOG_D("Server starting...\n");
 

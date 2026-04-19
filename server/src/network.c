@@ -28,7 +28,7 @@ int accept_conn(int listener_socket)
 
 #define CLIENT_BUF_SIZE 1024
 
-client_handle_otp handle_client(int fd)
+client_res_t handle_client(int fd)
 {
     LOG_D("Handling socket %d\n", fd);
 
@@ -60,10 +60,7 @@ client_handle_otp handle_client(int fd)
 #endif
 
     char** tokens = resp_get_tokens(resp_buf);
-    for (int i = 0; tokens[i] != NULL; i++)
-    {
-        LOG_D("Token: %s\n", tokens[i]);
-    }
-
+    send(fd, "+OK\r\n", 5, 0);
+    resp_free_tokens(tokens);
     return KEEP_ALIVE;
 }

@@ -11,8 +11,8 @@ typedef enum
 {
     KEEP_ALIVE,
     CLOSE_FD
-} client_handle_otp;
+} client_res_t;
 
-client_handle_otp handle_client(int peer_fd);
+client_res_t handle_client(int peer_fd);
 
 int accept_conn(int listener_fd);

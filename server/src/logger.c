@@ -11,10 +11,10 @@ static void strnow(char* buf, size_t _size)
     strftime(buf, _size, "%d-%m-%Y %H:%M:%S", t);
 }
 
-static void log_msg_v(log_level msg_level, const char* label, FILE* out, const char* fmt,
+static void log_msg_v(log_level_t msg_level, const char* label, FILE* out, const char* fmt,
                       va_list args)
 {
-    if (msg_level < logger.lvl)
+    if (msg_level < g_logger.lvl)
         return;
 
     char timebuf[100];
@@ -56,6 +56,6 @@ void log_err(const char* msg, ...)
     va_end(args);
 }
 
-void set_global_log_lvl(log_level _l) { logger.lvl = _l; };
+void set_g_log_lvl(log_level_t _l) { g_logger.lvl = _l; };
 
-logger_t logger = {.err = log_err, .warn = log_warn, .info = log_info, .debug = log_debug};
+logger_t g_logger = {.err = log_err, .warn = log_warn, .info = log_info, .debug = log_debug};

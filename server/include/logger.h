@@ -6,22 +6,22 @@ typedef enum
     LOG_INFO,
     LOG_WARN,
     LOG_ERROR,
-} log_level;
+} log_level_t;
 
-extern void set_global_log_lvl(log_level _l);
+extern void set_g_log_lvl(log_level_t _l);
 
-typedef void (*log_fn)(const char* msg, ...);
+typedef void (*log_fn_t)(const char* msg, ...);
 
 typedef struct
 {
-    log_level lvl;
-    log_fn err;
-    log_fn warn;
-    log_fn info;
-    log_fn debug;
+    log_level_t lvl;
+    log_fn_t err;
+    log_fn_t warn;
+    log_fn_t info;
+    log_fn_t debug;
 } logger_t;
 
-extern logger_t logger;
+extern logger_t g_logger;
 
 void log_debug(const char* fmt, ...);
 void log_info(const char* fmt, ...);

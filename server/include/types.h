@@ -12,7 +12,7 @@ typedef void (*loop_interface)(int fd);
 
 void sel_event_loop(int listener_fd);
 
-typedef struct 
+typedef struct
 {
     server_args args;
     short port;
