@@ -1,12 +1,12 @@
 #include "network.h"
 
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "logger.h"
+#include "resp_parser.h"
 #include "types.h"
 
 int accept_conn(int listener_socket)
@@ -26,13 +26,15 @@ int accept_conn(int listener_socket)
     return peer_fd;
 }
 
+#define CLIENT_BUF_SIZE 1024
+
 client_handle_otp handle_client(int fd)
 {
     LOG_D("Handling socket %d\n", fd);
 
     char buffer[1024];
-
     memset(buffer, 0, sizeof(buffer));
+
     int msg_len;
     msg_len = recv(fd, buffer, sizeof(buffer), 0);
 
@@ -49,7 +51,13 @@ client_handle_otp handle_client(int fd)
     }
 
     LOG_D("bytes read from socket %d: %d\n", fd, msg_len);
-    LOG_D("Buffer state: %s", buffer);
+
+#ifdef ESCAPE_RESP
+    char escp_buf[CLIENT_BUF_SIZE * 2 + 1];
+    memset(escp_buf, 0, sizeof(escp_buf));
+    escape_resp(escp_buf, buffer);
+    LOG_D("Escaped buffer state: %s\n", escp_buf);
+#endif
 
     if (strcmp(buffer, "PING\r\n") == 0)
     {

@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
     server _server = {
         .args = {argc, ++argv},
-        .port = 8000,
+        .port = 6379,
         .loop = sel_event_loop,
     };
 

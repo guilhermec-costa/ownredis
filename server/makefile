@@ -6,7 +6,7 @@ EXEC := $(OUTPUT_DIR)/ownredis-server
 ARGS = 
 
 EXEC_DEBUG := $(OUTPUT_DIR)/ownredis-server-debug
-CFLAGS := -Wall -Wextra -std=c99 -Iinclude
+CFLAGS := -Wall -Wextra -std=c99 -Iinclude -DESCAPE_RESP
 SRCS := $(shell find src -name "*.c")
 OBJS := $(patsubst src/%.c, $(OUTPUT_DIR)/%.o, $(SRCS))
 
