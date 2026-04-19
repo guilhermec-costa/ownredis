@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -9,6 +10,7 @@
 #include <unistd.h>
 #include <utils.h>
 
+#include "logger.h"
 #include "network.h"
 
 void sel_event_loop(int listener_fd)
@@ -17,17 +19,19 @@ void sel_event_loop(int listener_fd)
     FD_ZERO(&resetfds);
     FD_SET(listener_fd, &resetfds);
 
+    uint16_t max_fd = listener_fd;
+
     for (;;)
     {
         readfds = resetfds;
         // select modifies the fdsets in place
-        if (select(FD_SETSIZE, &readfds, NULL, NULL, NULL) < 0)
+        if (select(max_fd, &readfds, NULL, NULL, NULL) < 0)
         {
             perror("multiplexing failed");
             exit(EXIT_FAILURE);
         }
 
-        for (int i = 0; i < FD_SETSIZE; i++)
+        for (int i = 0; i < max_fd; i++)
         {
             if (FD_ISSET(i, &readfds))
             {
@@ -38,11 +42,19 @@ void sel_event_loop(int listener_fd)
                     if (peer_fd == SOCKERR)
                         continue;
 
+                    if (peer_fd > FD_SETSIZE)
+                    {
+                        fprintf(stderr, "Can not accept more connections. Limit: %d", FD_SETSIZE);
+                        close(peer_fd);
+                        continue;
+                    }
+
                     FD_SET(peer_fd, &resetfds);
+                    if (peer_fd > max_fd)
+                        max_fd = peer_fd;
                 }
                 else
                 {
-                    printf("Message here on fd %d\n", i);
                     int otp = handle_client(i);
                     switch (otp)
                     {
@@ -77,10 +89,10 @@ void start_server(server_args* args, short port)
     int conn_backlog = 5;
     exit_on_error(listen(sock_listener, conn_backlog), "sock listen failed", SOCKERR);
 
-    printf("Server listening on port %d. Waiting for connections...\n", port);
+    logger.info("Server listening on port %d. Waiting for connections...\n", port);
 
     sel_event_loop(sock_listener);
 
-    printf("Ending server...\n");
+    logger.info("Ending server...\n");
     close(sock_listener);
 }

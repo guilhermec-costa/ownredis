@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+      "type": "shell",
+      "label": "build server: debug mode",
+      "command": "cd server && make debug",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build server on debug mode"
+    }
+  ]
+}

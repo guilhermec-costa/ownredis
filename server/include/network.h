@@ -3,6 +3,7 @@
 #include "types.h"
 
 #define SOCKERR -1
+#define SOCK_CLOSED 0
 
 void start_server(server_args* args, short port);
 
