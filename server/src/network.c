@@ -32,11 +32,11 @@ client_handle_otp handle_client(int fd)
 {
     LOG_D("Handling socket %d\n", fd);
 
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer));
+    char resp_buf[1024];
+    memset(resp_buf, 0, sizeof(resp_buf));
 
     int msg_len;
-    msg_len = recv(fd, buffer, sizeof(buffer), 0);
+    msg_len = recv(fd, resp_buf, sizeof(resp_buf), 0);
 
     if (msg_len == -1)
     {
@@ -55,23 +55,14 @@ client_handle_otp handle_client(int fd)
 #ifdef ESCAPE_RESP
     char escp_buf[CLIENT_BUF_SIZE * 2 + 1];
     memset(escp_buf, 0, sizeof(escp_buf));
-    escape_resp(escp_buf, buffer);
+    escape_resp(escp_buf, resp_buf);
     LOG_D("Escaped buffer state: %s\n", escp_buf);
 #endif
 
-    if (strcmp(buffer, "PING\r\n") == 0)
+    char** tokens = resp_get_tokens(resp_buf);
+    for (int i = 0; tokens[i] != NULL; i++)
     {
-        const char* pong_buf = "+PONG\r\n";
-        if (send(fd, pong_buf, strlen(pong_buf), 0) == SOCKERR)
-        {
-            LOG_E("Failed writing to socket %d", fd);
-            return CLOSE_FD;
-        }
-    }
-
-    if (strcmp(buffer, "quit\r\n") == 0)
-    {
-        return CLOSE_FD;
+        LOG_D("Token: %s\n", tokens[i]);
     }
 
     return KEEP_ALIVE;

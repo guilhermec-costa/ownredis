@@ -1,6 +1,7 @@
 #include "logger.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "network.h"
 #include "types.h"

@@ -50,8 +50,10 @@ void sel_event_loop(int listener_fd)
                     }
 
                     FD_SET(peer_fd, &resetfds);
-                    max_fd = peer_fd;
-                    // if (peer_fd > max_fd)
+                    if (peer_fd > max_fd)
+                    {
+                        max_fd = peer_fd;
+                    }
                 }
                 else
                 {
